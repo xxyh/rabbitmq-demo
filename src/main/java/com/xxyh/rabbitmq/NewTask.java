@@ -11,7 +11,7 @@ import java.util.concurrent.TimeoutException;
  * Created by zhugc on 2017/6/22.
  */
 public class NewTask {
-    private static final String queueName = "task_queue";
+    private static final String WORK_NAME = "task_queue";
 
     public static void main(String[] args) throws IOException, TimeoutException {
 
@@ -20,10 +20,6 @@ public class NewTask {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
-        // 持久化
-        boolean durable = true;
-        channel.queueDeclare(queueName, durable, false, false, null);
-
         // 发送10条记录，每次在后面添加"."
         for (int i = 0; i < 10; i++) {
             String dot = "";
@@ -31,7 +27,7 @@ public class NewTask {
                 dot += ".";
             }
             String message = "work queue " + dot + dot.length();
-            channel.basicPublish("", queueName, null, message.getBytes("utf-8"));
+            channel.basicPublish("", WORK_NAME, null, message.getBytes("utf-8"));
             System.out.println(Thread.currentThread().getName() + "发送消息：" + message);
         }
         channel.close();
