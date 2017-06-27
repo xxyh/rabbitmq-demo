@@ -3,6 +3,7 @@ package com.xxyh.rabbitmq;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.MessageProperties;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -20,6 +21,9 @@ public class NewTask {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
+        boolean durable = true;
+        channel.queueDeclare(WORK_NAME, durable, false, false, null);
+
         // 发送10条记录，每次在后面添加"."
         for (int i = 0; i < 10; i++) {
             String dot = "";
@@ -27,7 +31,9 @@ public class NewTask {
                 dot += ".";
             }
             String message = "work queue " + dot + dot.length();
-            channel.basicPublish("", WORK_NAME, null, message.getBytes("utf-8"));
+            channel.basicPublish("", WORK_NAME,
+                    MessageProperties.PERSISTENT_TEXT_PLAIN,
+                    message.getBytes("utf-8"));
             System.out.println(Thread.currentThread().getName() + "发送消息：" + message);
         }
         channel.close();

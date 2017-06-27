@@ -10,7 +10,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class Work {
 
-    private static final String queueName = "task_queue";
+    private static final String WORK_QUEUE = "task_queue";
 
     public static void main(String[] args) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
@@ -19,7 +19,7 @@ public class Work {
         Channel channel = connection.createChannel();
 
         boolean durable = true;
-        channel.queueDeclare(queueName, durable, false, false, null);
+        channel.queueDeclare(WORK_QUEUE, durable, false, false, null);
 
         // 设置同一个消费者在同一时间只能消费一条消息
         channel.basicQos(1);
@@ -41,13 +41,11 @@ public class Work {
                     channel.basicAck(envelope.getDeliveryTag(), false);
                 }
             }
-
-
         };
 
         // 取消autoAck
         boolean autoAck = false;
-        channel.basicConsume(queueName, autoAck, consumer);
+        channel.basicConsume(WORK_QUEUE, autoAck, consumer);
     }
 
     private static void doWork(String task) throws InterruptedException {
